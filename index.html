@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strong Password Generator - itqot</title>
+    <meta name="description" content="Strong and safe password generator by itqot">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.1);
+            filter: blur(7px);
+            border-radius: 20px;
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(255,255,255, 0.7);
+            backdrop-filter: blur(20px);
+            position: relative;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            max-width: 740px;
+            width: 100%;
+            
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            line-height: 1.1;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .length-display {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+        
+        .generate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .password-output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            display: none;
+        }
+        
+        .password-output.show {
+            display: block;
+        }
+        
+        .password-display {
+            background: white;
+            padding: 44px 24px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            word-break: break-all;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+        
+        .copy-btn, .qr-btn {
+            position: absolute;
+            top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background 0.2s;
+        }
+        
+        .copy-btn {
+            right: 60px;
+        }
+        
+        .qr-btn {
+            right: 10px;
+            background: #28a745;
+        }
+        
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .qr-btn:hover {
+            background: #218838;
+        }
+        
+        .password-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .strength-very-weak { color: #dc3545; }
+        .strength-weak { color: #fd7e14; }
+        .strength-fair { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+        .strength-very-strong { color: #007bff; }
+        
+        .qr-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .qr-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .qr-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .qr-close:hover {
+            color: #000;
+        }
+        
+        .qr-code-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 200px;
+            align-items: center;
+        }
+        
+        .qr-code-svg {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .qr-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+        }
+        
+        .qr-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .qr-title {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .qr-instructions {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+        
+        .download-qr-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+        
+        .download-qr-btn:hover {
+            background: #218838;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Password Generator</h1>
+        
+        <form id="passwordForm">
+            <div class="form-group">
+                <label for="length">Password Length</label>
+                <input type="range" id="length" min="4" max="128" value="16">
+                <div class="length-display">16 characters</div>
+            </div>
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="uppercase" checked>
+                    <label for="uppercase">Uppercase (A-Z)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="lowercase" checked>
+                    <label for="lowercase">Lowercase (a-z)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="digits" checked>
+                    <label for="digits">Numbers (0-9)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="symbols" checked>
+                    <label for="symbols">Symbols (!@#$%^&*()_+-=[]{}|;:,.<>?)</label>
+                </div>
+            </div>
+            
+            <div class="checkbox-item" style="margin-bottom: 20px;">
+                <input type="checkbox" id="excludeAmbiguous" checked>
+                <label for="excludeAmbiguous">Exclude ambiguous characters (0, O, 1, l, I)</label>
+            </div>
+            
+            <button type="submit" class="generate-btn">Generate Strong Password</button>
+        </form>
+        
+        <div id="passwordOutput" class="password-output">
+            <div class="password-display">
+                <span id="generatedPassword"></span>
+                <button class="copy-btn" onclick="copyPassword()">Copy</button>
+                <button class="qr-btn" onclick="showQRCode()">QR</button>
+            </div>
+            <div class="password-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="passwordLength">0</div>
+                    <div class="stat-label">Length</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="passwordStrength">-</div>
+                    <div class="stat-label">Strength</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">2025 &copy; <a href="http://itqot.ru/">itqot</a>. All rights reserved.</div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-modal-content">
+            <span class="qr-close" onclick="closeQRModal()">&times;</span>
+            <div class="qr-title">Password QR Code</div>
+            <div class="qr-code-container" id="qrContainer">
+                <div class="qr-loading">
+                    <div class="qr-spinner"></div>
+                    <div>Generating QR Code...</div>
+                </div>
+            </div>
+            <div class="qr-instructions">
+                Scan this QR code with your device to copy the password.<br>
+                <strong>Warning:</strong> QR codes can be read by anyone who can see them.
+            </div>
+            <button class="download-qr-btn" onclick="downloadQRCode()">Download QR Code</button>
+        </div>
+    </div>
+
+    <script>
+        const lengthSlider = document.getElementById('length');
+        const lengthDisplay = document.querySelector('.length-display');
+        const form = document.getElementById('passwordForm');
+        const passwordOutput = document.getElementById('passwordOutput');
+        
+        // Update length display
+        lengthSlider.addEventListener('input', function() {
+            lengthDisplay.textContent = this.value + ' characters';
+        });
+        
+        // Form submission
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            
+            const formData = {
+                length: parseInt(lengthSlider.value),
+                includeUppercase: document.getElementById('uppercase').checked,
+                includeLowercase: document.getElementById('lowercase').checked,
+                includeDigits: document.getElementById('digits').checked,
+                includeSymbols: document.getElementById('symbols').checked,
+                excludeAmbiguous: document.getElementById('excludeAmbiguous').checked
+            };
+            
+            try {
+                const response = await fetch('/api/v1/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate password');
+                }
+                
+                const data = await response.json();
+                displayPassword(data);
+            } catch (error) {
+                alert('Error generating password: ' + error.message);
+            }
+        });
+        
+        function displayPassword(data) {
+            document.getElementById('generatedPassword').textContent = data.password;
+            document.getElementById('passwordLength').textContent = data.length;
+            
+            const strengthElement = document.getElementById('passwordStrength');
+            strengthElement.textContent = data.strength;
+            strengthElement.className = 'stat-value strength-' + data.strength.toLowerCase().replace(' ', '-');
+            
+            passwordOutput.classList.add('show');
+        }
+        
+        async function copyPassword() {
+            const passwordElement = document.getElementById('generatedPassword');
+            const copyBtn = document.querySelector('.copy-btn');
+            
+            // Ensure elements exist
+            if (!passwordElement || !copyBtn) {
+                console.error('Required elements not found');
+                return;
+            }
+            
+            const password = passwordElement.textContent.trim();
+            
+            try {
+                // Try modern clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(password);
+                } else {
+                    // Fallback to older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = password;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    textArea.style.left = '-9999px';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (!successful) {
+                        throw new Error('Failed to copy text');
+                    }
+                }
+                
+                // Update button text
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+                
+            } catch (err) {
+                console.error('Failed to copy password:', err);
+                copyBtn.textContent = 'Copy failed';
+            }
+        }
+        
+        async function showQRCode() {
+            const password = document.getElementById('generatedPassword').textContent;
+            const modal = document.getElementById('qrModal');
+            const container = document.getElementById('qrContainer');
+            
+            // Show modal with loading state
+            modal.style.display = 'block';
+            container.innerHTML = `
+                <div class="qr-loading">
+                    <div class="qr-spinner"></div>
+                    <div>Generating QR Code...</div>
+                </div>
+            `;
+            
+            try {
+                // Generate QR code via Crystal backend
+                const response = await fetch('/api/v1/qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to generate QR code: ${response.status}`);
+                }
+                
+                // Get the response as a blob (PNG image)
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                
+                // Display the PNG QR code
+                container.innerHTML = `
+                    <img src="${imageUrl}" alt="QR Code" class="qr-code-img" style="max-width: 512px; max-height: 512px;">
+                `;
+            } catch (error) {
+                console.error('QR Code generation failed:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; color: #dc3545; padding: 20px;">
+                        <div>❌</div>
+                        <div style="margin-top: 10px;">Failed to generate QR code</div>
+                        <div style="font-size: 0.9em; margin-top: 5px;">Please try again or use the Copy button</div>
+                    </div>
+                `;
+            }
+        }
+        
+        function closeQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+        
+        function downloadQRCode() {
+            const container = document.getElementById('qrContainer');
+            const imgUrl = container.querySelector('img').src;
+            
+            if (!imgUrl) {
+                alert('No QR code to download');
+                return;
+            }
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = 'password_qr_code.png';
+            link.href = imgUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up
+            URL.revokeObjectURL(imgUrl);
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeQRModal();
+            }
+        });
+        
+        // Generate initial password
+        window.addEventListener('load', function() {
+            form.dispatchEvent(new Event('submit'));
+        });
+    </script>
+</body>
+</html>

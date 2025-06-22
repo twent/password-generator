@@ -1,0 +1,14 @@
+version: 2.0
+shards:
+  goban:
+    git: https://github.com/soya-daizu/goban.git
+    version: 1.8.0+git.commit.b076fb4e91969efd5ee0b2be2ee4cbd74c983548
+
+  stumpy_core:
+    git: https://github.com/stumpycr/stumpy_core.git
+    version: 1.9.1
+
+  stumpy_png:
+    git: https://github.com/stumpycr/stumpy_png.git
+    version: 5.0.1
+

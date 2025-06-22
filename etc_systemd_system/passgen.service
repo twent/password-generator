@@ -1,0 +1,14 @@
+[Unit]
+Description=Strong Password Generator by itqot
+After=network.target
+
+[Service]
+Type=simple
+User=passgen
+ExecStart=/home/passgen/password_generator -p 80
+Restart=always
+RestartSec=1
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=multi-user.target

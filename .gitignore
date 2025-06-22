@@ -1,0 +1,36 @@
+# Build artifacts
+/docs/
+/lib/
+/bin/
+/build/
+/release/
+
+# Compiled file
+password_generator
+
+/.shards/
+*.dwarf
+
+# Cache directories
+.cache/
+.crystal/
+
+# Dependencies
+vendor/
+deps/
+
+# Test coverage reports
+coverage/
+
+# Documentation
+docs/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db

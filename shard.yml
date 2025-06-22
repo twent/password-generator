@@ -1,0 +1,19 @@
+name: password_generator
+version: 0.1.0
+
+authors:
+  - twent <i@twent.ru>
+
+license: MIT
+
+crystal: '>= 1.16.2'
+
+dependencies:
+  goban:
+    github: soya-daizu/goban
+  stumpy_png:
+    github: stumpycr/stumpy_png
+
+targets:
+  password_generator:
+    main: src/password_generator.cr
