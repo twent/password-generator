@@ -1,4 +1,9 @@
 ## Strong password generator app created with Crystal lang
+### Available:
+> http://passgen.itqot.ru/
+
+![App Screenshot](img/screenshot.png)
+
 ### Features:
 - Password length from 4 to 128 characters
 - Uppercase
@@ -9,9 +14,6 @@
 - Excluding consecutive character repeats
 - Copy to buffer button
 - QR code generation for password with download possibility
-
-### Available:
-> http://passgen.itqot.ru/
 
 ### Using locally:
 1. Clone this repo
