@@ -1,6 +1,6 @@
 ## Strong password generator app created with Crystal lang
 ### Available:
-> http://passgen.itqot.ru/
+> https://passgen.itqot.ru/
 
 ![App Screenshot](img/screenshot.png)
 

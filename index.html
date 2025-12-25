@@ -3,9 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strong Password Generator - itqot</title>
-    <meta name="description" content="Strong and safe password generator by itqot">
+    <title>Генератор надёжного пароля (Strong Password Generator) - itqot</title>
+    <meta name="description" content="Strong and safe password generator by itqot. Сгенерировать надёжный пароль.">
+    <meta name="keywords" content="сгенерировать пароль, password generator, генератор паролей, generate password, secure, safe, itqot, twent">
     <style>
+        /* WebKit and Blink */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +32,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+        }
+
+        @media screen and (width > 900px) {
+            body {
+                padding: 20px;
+            }
         }
         
         .container::before {
@@ -37,22 +55,49 @@
 
         .container {
             background: rgba(255,255,255, 0.7);
-            backdrop-filter: blur(20px);
             position: relative;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 40px 30px;
-            max-width: 740px;
             width: 100%;
-            
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        @media screen and (width > 900px) {
+            .container {
+                padding: 40px 30px;
+                max-width: 740px;
+                border-radius: 20px;
+                backdrop-filter: blur(20px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                min-height: max-content;
+            }
         }
         
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
-            font-size: 2.5em;
+            font-size: 2.1em;
+            line-height: 1.2;
+        }
+
+        @media screen and (width > 900px) {
+            h1 {
+                font-size: 2.5em;
+            }
+        }
+
+        h2 {
+            text-align: left;
+            color: #555;
+            margin-bottom: 12px;
+            font-size: 1.2em;
             line-height: 1.1;
+        }
+
+        hr {
+            border: none;
+            width: 90%;
+            margin: 20px auto;
         }
         
         .form-group {
@@ -65,14 +110,28 @@
             font-weight: 600;
             color: #555;
         }
-        
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 10px;
+
+        .length-control {
+            width: 64px;
+            padding: 14px !important;
+            font-size: 1.3em !important;
         }
-        
-        .length-display {
+
+        .length-input {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #444;
+            width: auto;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            margin-bottom: 10px;
+            margin: 0 10px;
             text-align: center;
+        }
+                
+        .length-display {
             font-size: 1.2em;
             font-weight: bold;
             color: #667;
@@ -92,12 +151,17 @@
             gap: 8px;
         }
         
-        .checkbox-item input[type="checkbox"] {
+        .checkbox-item input[type="checkbox"],
+        .checkbox-item input[type="radio"] {
             transform: scale(1.2);
         }
-        
+
         .generate-btn {
             width: 100%;
+        }
+        
+        .generate-btn,
+        .length-control {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
@@ -109,7 +173,14 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        .generate-btn:hover {
+        .generate-btn:hover,
+        .length-control:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .generate-btn:active,
+        .length-control:active {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
@@ -129,7 +200,7 @@
         
         .password-display {
             background: white;
-            padding: 44px 24px;
+            padding: 60px 24px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 1.1em;
@@ -145,10 +216,11 @@
             background: #667eea;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: 0.85em;
+            font-weight: 600;
             transition: background 0.2s;
         }
         
@@ -316,14 +388,46 @@
 <body>
     <div class="container">
         <h1>🔐 Password Generator</h1>
+
+        <hr>
         
         <form id="passwordForm">
             <div class="form-group">
                 <label for="length">Password Length</label>
-                <input type="range" id="length" min="4" max="128" value="16">
-                <div class="length-display">16 characters</div>
+
+                <button
+                    class="length-control"
+                    onclick="lengthInput.stepDown()"
+                    title="Decrease value"
+                    aria-label="Decrease value">
+                    -
+                </button>
+
+                <input 
+                    class="length-input" 
+                    type="number" 
+                    id="length" 
+                    name="lengthInput" 
+                    min="8" 
+                    max="128" 
+                    value="16" 
+                    step="8" 
+                    autocomplete="off"
+                />
+
+                <button
+                    class="length-control"
+                    onclick="lengthInput.stepUp()"
+                    title="Increase value"
+                    aria-label="Increase value">
+                    +
+                </button>
             </div>
             
+            <hr>
+
+            <h2>Security properties</h2>
+
             <div class="checkbox-group">
                 <div class="checkbox-item">
                     <input type="checkbox" id="uppercase" checked>
@@ -347,6 +451,8 @@
                 <input type="checkbox" id="excludeAmbiguous" checked>
                 <label for="excludeAmbiguous">Exclude ambiguous characters (0, O, 1, l, I)</label>
             </div>
+
+            <hr>
             
             <button type="submit" class="generate-btn">Generate Strong Password</button>
         </form>
@@ -354,7 +460,7 @@
         <div id="passwordOutput" class="password-output">
             <div class="password-display">
                 <span id="generatedPassword"></span>
-                <button class="copy-btn" onclick="copyPassword()">Copy</button>
+                <button class="copy-btn" onclick="copyPassword()"> Copy</button>
                 <button class="qr-btn" onclick="showQRCode()">QR</button>
             </div>
             <div class="password-stats">
@@ -393,14 +499,8 @@
 
     <script>
         const lengthSlider = document.getElementById('length');
-        const lengthDisplay = document.querySelector('.length-display');
         const form = document.getElementById('passwordForm');
         const passwordOutput = document.getElementById('passwordOutput');
-        
-        // Update length display
-        lengthSlider.addEventListener('input', function() {
-            lengthDisplay.textContent = this.value + ' characters';
-        });
         
         // Form submission
         form.addEventListener('submit', async event => {
