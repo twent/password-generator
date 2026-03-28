@@ -14,7 +14,7 @@ OptionParser.parse do |opts|
 end
 
 # HTML content for the frontend
-HTML_CONTENT = {{ read_file("index.html") }}
+HTML_CONTENT = {{ read_file("index2.html") }}
 
 def json_bool_param(params : JSON::Any, key : String, default_value : Bool) : Bool
     value = params[key]

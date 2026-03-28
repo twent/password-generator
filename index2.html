@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор паролей (Strong Password Generator) - itqot</title>
+    <meta name="description" content="Strong password generator by itqot. Сгенерировать надёжный пароль.">
+    <meta name="keywords" content="сгенерировать пароль, password generator, генератор паролей, generate password, secure, safe, itqot, twent">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* THEME VARIABLES */
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --ui-border: #000000;
+            --btn-bg: #000000;
+            --btn-text: #ffffff;
+            --container-border: 2px solid #000;
+            --password-border: 2px solid #000;
+            --success-color: #10ac84;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #000000;
+                --text: #ffffff;
+                --ui-border: #ffffff;
+                --btn-bg: #ffffff;
+                --btn-text: #000000;
+                --container-border: 1px solid #ffffff;
+                --password-border: 3px solid #ffffff;
+            }
+        }
+
+        html[data-theme="light"] {
+            --bg: #ffffff;
+            --text: #000000;
+            --ui-border: #000000;
+            --btn-bg: #000000;
+            --btn-text: #ffffff;
+            --container-border: 2px solid #000;
+            --password-border: 2px solid #000;
+        }
+
+        html[data-theme="dark"] {
+            --bg: #000000;
+            --text: #ffffff;
+            --ui-border: #ffffff;
+            --btn-bg: #ffffff;
+            --btn-text: #000000;
+            --container-border: 1px solid #ffffff;
+            --password-border: 3px solid #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 580px;
+            border: var(--container-border);
+            background: var(--bg);
+            padding: 40px;
+            position: relative;
+            transition: border 0.3s ease;
+        }
+
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+        html[data-theme="dark"] a { color: #ffffff; }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 0px solid var(--ui-border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        .theme-toggle svg { 
+            width: 20px; 
+            height: 20px; 
+            stroke: currentColor; 
+            stroke-width: 2.5; 
+            stroke-linecap: round; 
+            stroke-linejoin: round; 
+            fill: none; 
+        }
+        
+        html[data-theme="dark"] .icon-sun { display: block; }
+        html[data-theme="dark"] .icon-moon { display: none; }
+        html:not([data-theme="dark"]) .icon-sun { display: none; }
+        html:not([data-theme="dark"]) .icon-moon { display: block; }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            line-height: 1;
+            text-transform: uppercase;
+            padding-right: 50px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        /* Length Controls */
+        .length-wrapper {
+            display: flex;
+            align-items: stretch;
+            height: 60px;
+            border: 1px solid var(--ui-border);
+        }
+
+        .length-control {
+            background: lightgray;
+            color: var(--text);
+            border: none;
+            width: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-right: 1px solid var(--ui-border);
+            transition: background 0.2s;
+        }
+        html[data-theme="dark"] .length-control { background-color: dimgrey; }
+        
+        .length-control:last-child { border-right: none; border-left: 1px solid var(--ui-border); }
+        .length-control:hover { background: var(--text); color: var(--bg); }
+
+        .length-input {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            flex-grow: 1;
+            text-align: center;
+            font-size: 2rem;
+            font-family: inherit;
+            font-weight: 700;
+        }
+
+        /* Checkboxes */
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .checkbox-item {
+            text-transform: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-item input { display: none; }
+
+        .checkbox-item .box {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--ui-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .checkbox-item input:checked + .box { background: var(--text); color: var(--bg); }
+        .checkbox-item input:checked + .box::before { content: '✓'; font-weight: bold; }
+
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: 2px solid var(--ui-border);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-bottom: 40px;
+            transition: all 0.2s;
+        }
+        .generate-btn:hover { opacity: 0.85; transform: translateY(-2px); }
+
+        /* Password Output Area */
+        .password-output { display: none; }
+        .password-output.show { display: block; }
+
+        /* The Card with Password */
+        .password-display {
+            margin-top: 20px;
+            border: var(--password-border); 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg);
+            transition: border-color 0.3s ease;
+            padding-top: 64px; 
+        }
+
+        /* Strength Colors for Border */
+        .password-display.strength-very-weak { border-color: #ff4b4b; }
+        .password-display.strength-weak { border-color: #ff9f43; }
+        .password-display.strength-fair { border-color: #feca57; }
+        .password-display.strength-strong { border-color: #1dd1a1; }
+        .password-display.strength-very-strong { border-color: #10ac84; }
+
+        /* Password Text Container */
+        #generatedPassword {
+            font-size: 1.5rem;
+            word-break: break-all;
+            line-height: 1.4;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+            margin-bottom: 28px;
+        }
+
+        /* Action Buttons */
+        .password-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 0 10px;
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            width: auto;
+            height: 32px;
+            display: flex;
+            gap: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: capitalize;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        .action-btn:hover { opacity: 0.8; }
+        
+        /* Copied State */
+        .action-btn.copied {
+            background-color: var(--success-color);
+            color: #fff;
+        }
+
+        .action-btn svg { 
+            width: 16px; 
+            height: 16px;
+            margin-bottom: 2px;
+            /* Heroicons default configuration */
+            stroke: currentColor; 
+            stroke-width: 1.5; 
+            fill: none; 
+        }
+
+        /* Stats Footer inside the box */
+        .password-meta {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--ui-border);
+            padding-top: 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: auto;
+        }
+        
+        .meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .meta-label { font-size: 0.65rem; opacity: 0.6; }
+        .meta-value { font-weight: bold; font-size: 1rem; transition: color 0.3s; }
+        
+        /* Strength Text Colors */
+        .meta-value.strength-very-weak { color: #ff4b4b; }
+        .meta-value.strength-weak { color: #ff9f43; }
+        .meta-value.strength-fair { color: #feca57; }
+        .meta-value.strength-strong { color: #1dd1a1; }
+        .meta-value.strength-very-strong { color: #10ac84; }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text);
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Modal */
+        .qr-modal { background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .qr-modal-content { 
+            background: var(--bg); 
+            border: 2px solid var(--ui-border); 
+            padding: 20px; 
+            color: var(--text); 
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .qr-close { color: var(--text); }
+        .download-qr-btn { 
+            background: var(--btn-bg); 
+            color: var(--btn-text); 
+            border: none; 
+            padding: 10px; 
+            font-family: inherit; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 15px; 
+            cursor: pointer;
+        }
+
+        @media (max-width: 500px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.5rem; }
+            .password-display { padding-top: 20px; }
+            .password-actions { 
+                position: relative; 
+                top: 0; 
+                right: 0; 
+                justify-content: flex-end; 
+                margin-bottom: 10px; 
+            }
+            #generatedPassword { margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <!-- Sun Icon -->
+            <svg class="icon-sun" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+            </svg>
+            <!-- Moon Icon -->
+            <svg class="icon-moon" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+        </button>
+
+        <h1>Password<br>Generator_</h1>
+
+        <form id="passwordForm">
+            <div class="form-group">
+                <label>Password Length</label>
+                <div class="length-wrapper">
+                    <button type="button" class="length-control" onclick="lengthInput.stepDown()">-</button>
+                    <input class="length-input" type="number" id="length" name="lengthInput" min="8" max="128" value="16" step="8" autocomplete="off">
+                    <button type="button" class="length-control" onclick="lengthInput.stepUp()">+</button>
+                </div>
+            </div>
+
+            <label>Include Characters</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="uppercase" checked>
+                    <span class="box"></span>
+                    A-Z
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="lowercase" checked>
+                    <span class="box"></span>
+                    a-z
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="digits" checked>
+                    <span class="box"></span>
+                    0-9
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="symbols" checked>
+                    <span class="box"></span>
+                    Symbols
+                </label>
+            </div>
+            
+            <label class="checkbox-item" style="margin-bottom: 30px;">
+                <input type="checkbox" id="excludeAmbiguous" checked>
+                <span class="box"></span>
+                Exclude Ambiguous
+            </label>
+            
+            <button type="submit" class="generate-btn">Generate</button>
+        </form>
+        
+        <div id="passwordOutput" class="password-output">
+            <div class="password-display" id="pwdDisplayBox">
+                
+                <!-- Action Buttons with Heroicons -->
+                <div class="password-actions">
+                    <button class="action-btn" id="copyBtn" onclick="copyPassword()" title="Copy">
+                        <span class="btn-text">COPY</span>
+                        <!-- Heroicon: clipboard-document -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                            <path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" />
+                            <path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" />
+                        </svg>
+
+                    </button>
+                    <button class="action-btn" onclick="showQRCode()" title="QR Code">
+                        <span class="btn-text">QR</span>
+                        <!-- Heroicon: qr-code -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <span id="generatedPassword"></span>
+
+                <!-- Stats inside the box -->
+                <div class="password-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Length</span>
+                        <span class="meta-value" id="passwordLength">0</span>
+                    </div>
+                    <div class="meta-item" style="text-align: right">
+                        <span class="meta-label">Strength</span>
+                        <span class="meta-value" id="passwordStrength">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">2025 © <a href="https://itqot.ru/" target="_blank">itqot</a> All rights reserved.</div>
+    </div>
+
+    <!-- Modal -->
+    <div id="qrModal" class="qr-modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%;">
+        <div class="qr-modal-content" style="margin: 10% auto; width:90%; max-width:300px; text-align:center; position:relative;">
+            <span class="qr-close" onclick="closeQRModal()" style="cursor:pointer; font-size:24px; position:absolute; right:10px; top:5px;">&times;</span>
+            <h2 style="margin-bottom:15px; text-transform:uppercase; font-size:1rem;">Scan Code</h2>
+            <div id="qrContainer"></div>
+            <button class="download-qr-btn" onclick="downloadQRCode()">Download PNG</button>
+        </div>
+    </div>
+
+    <script>
+        // ----- THEME SWITCHER LOGIC -----
+        const toggleBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        function setTheme(themeName) {
+            html.setAttribute('data-theme', themeName);
+            localStorage.setItem('theme', themeName);
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+                return;
+            }
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light');
+            }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                setTheme('light');
+            } else {
+                setTheme('dark');
+            }
+        });
+
+        initTheme();
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? "dark" : "light");
+            }
+        });
+
+        // ----- CLOSE MODAL ON ESC -----
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeQRModal();
+            }
+        });
+
+        // ----- PASSWORD GENERATOR LOGIC -----
+        const lengthSlider = document.getElementById('length');
+        const form = document.getElementById('passwordForm');
+        const passwordOutput = document.getElementById('passwordOutput');
+        const pwdDisplayBox = document.getElementById('pwdDisplayBox');
+        
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const formData = {
+                length: parseInt(lengthSlider.value),
+                includeUppercase: document.getElementById('uppercase').checked,
+                includeLowercase: document.getElementById('lowercase').checked,
+                includeDigits: document.getElementById('digits').checked,
+                includeSymbols: document.getElementById('symbols').checked,
+                excludeAmbiguous: document.getElementById('excludeAmbiguous').checked
+            };
+            
+            try {
+                const response = await fetch('/api/v1/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                if (!response.ok) throw new Error('Failed');
+                displayPassword(await response.json());
+            } catch (error) { alert('Error: ' + error.message); }
+        });
+        
+        function displayPassword(data) {
+            document.getElementById('generatedPassword').textContent = data.password;
+            
+            // Stats
+            const lengthEl = document.getElementById('passwordLength');
+            const strengthEl = document.getElementById('passwordStrength');
+            
+            lengthEl.textContent = data.length;
+            
+            // Format strength text
+            const strengthText = data.strength.replace('-', ' ');
+            strengthEl.textContent = strengthText;
+            
+            // Apply classes for colors
+            const strengthClass = 'strength-' + data.strength.toLowerCase().replace(' ', '-');
+            
+            // Reset classes
+            strengthEl.className = 'meta-value ' + strengthClass;
+            // pwdDisplayBox.className = 'password-display ' + strengthClass; // Border color change
+            
+            passwordOutput.classList.add('show');
+        }
+        
+        async function copyPassword() {
+            const text = document.getElementById('generatedPassword').textContent;
+            const btn = document.getElementById('copyBtn');
+            const btnText = btn.querySelector('.btn-text');
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // Visual feedback
+                btn.classList.add('copied');
+                btnText.textContent = 'COPIED';
+                
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btnText.textContent = 'COPY';
+                }, 2000);
+                
+            } catch(e) {
+                btnText.textContent = 'ERROR';
+                setTimeout(() => {
+                    btnText.textContent = 'COPY';
+                }, 2000);
+            }
+        }
+        
+        async function showQRCode() {
+            const modal = document.getElementById('qrModal');
+            const container = document.getElementById('qrContainer');
+            modal.style.display = 'block';
+            container.innerHTML = 'Loading...';
+            try {
+                const res = await fetch('/api/v1/qr', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ password: document.getElementById('generatedPassword').textContent })
+                });
+                const blob = await res.blob();
+                container.innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%; border: 2px solid var(--ui-border);">`;
+            } catch(e) { container.innerHTML = 'Error'; }
+        }
+        
+        function closeQRModal() { document.getElementById('qrModal').style.display = 'none'; }
+        function downloadQRCode() {
+            const img = document.querySelector('#qrContainer img');
+            if(img) { const a = document.createElement('a'); a.href=img.src; a.download='qr.png'; a.click(); }
+        }
+        
+        window.onclick = e => { if(e.target == document.getElementById('qrModal')) closeQRModal(); }
+        window.onload = () => form.dispatchEvent(new Event('submit'));
+    </script>
+</body>
+</html>
